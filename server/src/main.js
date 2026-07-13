@@ -1,17 +1,15 @@
-const express = require('express');
+import express from 'express';
+import cors from 'cors';
+
 const app = express();
-const PORT = process.env.PORT || 3000;
-app.get('/', (req, res) => {
-  res.send('app GET');
-});
 
-app.post('/', (req, res) => {
-  res.send('app POST');
-});
+app.use(cors());
+app.use(express.json());
 
-app.delete('/', (req, res) => {
-  res.send('app DELETE');
+app.get('/health', (req, res) => {
+  return res.json({
+    status: 'ok',
+    message: 'van-control API rodando',
+  });
 });
-app.listen(PORT, () => {
-  console.log(`App online na porta ${port}`);
-});
+export default app;
