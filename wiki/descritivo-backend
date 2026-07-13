@@ -1,0 +1,9 @@
+#instalar o packge.json para iniciar o projeto - npm init -y
+#instalar o express - npm i express
+#importar as bibliotecas do express - const express = require('express')
+                                      const app = express()
+#scrip para rodar o node atraves do npm - "scripts": {
+    "dev": "node src/main.js"
+  }, 
+#criar pagina vazia echo $null > nome-arquivo.json
+#criar pasta mkdir nome-pasta
