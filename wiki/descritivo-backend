@@ -7,3 +7,43 @@
   }, 
 #criar pagina vazia echo $null > nome-arquivo.json
 #criar pasta mkdir nome-pasta
+
+#Fluxo principal 
+Thunder Client
+  ↓
+POST /alunos
+  ↓
+main.js percebe que começa com /alunos
+  ↓
+manda para alunos.routes.js
+  ↓
+routes chama alunosController.criar
+  ↓
+controller pega req.body
+  ↓
+service cria o aluno no array
+  ↓
+controller responde com status 201 e JSON
+
+#fluxo para listar alunos
+GET/alunos
+>route
+>controller.listar
+>service.listarAlunos
+>resposta json
+
+#fluxo para criar aluno
+POST/alunos
+>route
+>controller.criar
+>service.criarAluno(req.body)
+>salva resposta no array
+>resposta 201 no tunderClient
+
+#fluxo para busar aluno
+GET/aluno/id
+>route
+>controller.buscarPorId
+>service.buscarAlunoPorId(id)
+>se achou: retorna aluno
+>se não achou: retorna 404

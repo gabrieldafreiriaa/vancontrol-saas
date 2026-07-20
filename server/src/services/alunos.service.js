@@ -1,3 +1,6 @@
+/* Services > executa a lógica/regra de negocio 
+   Qual regra/lógica precisa acontecer?*/
+
 const alunos = [];
 
 function listarAlunos() {
@@ -5,7 +8,7 @@ function listarAlunos() {
 }
 
 function criarAluno(dadosDoAluno) {
-  const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno;
+  const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno; // desestruturação
 
   const aluno = {
     id: alunos.length + 1,
@@ -18,15 +21,15 @@ function criarAluno(dadosDoAluno) {
     criadoEm: new Date(),
   };
 
-  alunos.push(aluno);
+  alunos.push(aluno); /* adiciona aluno no array de alunos */
 
   return aluno;
 }
 
 function buscarAlunoPorID(id) {
-  const aluno = alunos.find((aluno) => aluno.id === Number(id));
+  const aluno = alunos.find((aluno) => aluno.id === Number(id)); // find() procura um item
 
-  return aluno;
+  return aluno; // service devolve o aluno para o array em controle
 }
 
 export const alunosService = {
