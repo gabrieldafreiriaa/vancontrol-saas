@@ -9,10 +9,10 @@ const alunosRoutes = Router();
 /* cria um conjunto de rotas chamado alunosRoutes */
 
 alunosRoutes.get('/', alunosController.listar);
-
 alunosRoutes.post('/', alunosController.criar);
-
 alunosRoutes.get('/:id', alunosController.buscarPorID);
-/* Rota GET que busca por um aluno especifico pelo id */
+alunosRoutes.put('/:id', alunosController.atualizar);
+alunosRoutes.patch('/:id/inativar', alunosController.inativar);
+alunosRoutes.delete('/:id', alunosController.remover);
 
 export default alunosRoutes;
