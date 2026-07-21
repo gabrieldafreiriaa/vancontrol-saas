@@ -4,26 +4,20 @@
                                       const app = express()
 #scrip para rodar o node atraves do npm - "scripts": {
     "dev": "node src/main.js"
-  }, 
+  }
+----------------------------------------------------------------------------- 
 #criar pagina vazia echo $null > nome-arquivo.json
 #criar pasta mkdir nome-pasta
-
+-----------------------------------------------------------------------------
 #Fluxo principal 
-Thunder Client
-  ↓
-POST /alunos
-  ↓
-main.js percebe que começa com /alunos
-  ↓
-manda para alunos.routes.js
-  ↓
-routes chama alunosController.criar
-  ↓
-controller pega req.body
-  ↓
-service cria o aluno no array
-  ↓
-controller responde com status 201 e JSON
+>Thunder Client
+>POST /alunos
+>main.js percebe que começa com /alunos
+>manda para alunos.routes.js
+>routes chama alunosController.criar
+>controller pega req.body
+>service cria o aluno no array
+>controller responde com status 201 e JSON
 
 #fluxo para listar alunos
 GET/alunos
@@ -47,3 +41,31 @@ GET/aluno/id
 >service.buscarAlunoPorId(id)
 >se achou: retorna aluno
 >se não achou: retorna 404
+
+------------------------------------------------------------------------------
+#GET/alunos > lista alunos - ver alunos
+#POST/alunos > cria aluno - chama o json do body e preenche info do aluno
+#GET/alunos/:id > lista um unico aluno filtrando por id - ver aluno 1
+#PUT/alunos/:id >  atualiza o cadastro inteiro de um aluno - chama o json e atualiza mais de um item
+#PATH/aluno:id > alteração parcial - atualisa apenas o status por ex 
+#DELETE/aluno/:id > remove um aluno do array ou do banco de dados
+
+-------------------------------------------------------------------------------
+
+#req.params > identifica o recurso (qual ID)
+  - req.params.id = qual aluno?
+#req.body > carrega os dados do recurso (entrega o json)
+  - req.body = quais dados?
+
+-------------------------------------------------------------------------------
+
+C > Criar 
+R > Listar/Buscar
+U > Atualizar
+D > Apagar 
+
+201 é para quando algo novo foi criado.
+200 é para quando a operação deu certo.
+404 é para quando não encontrou.
+
+-------------------------------------------------------------------------------
