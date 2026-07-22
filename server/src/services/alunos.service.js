@@ -3,6 +3,29 @@
 
 const alunos = [];
 
+function validarDadosAluno(dadosAluno) {
+  if (!dadosAluno.nome) {
+    return 'O campo nome é obrigatorio!';
+  }
+  if (!dadosAluno.escola) {
+    return 'O campo escola é obrigatorio!';
+  }
+  if (!dadosAluno.nomeResponsavel) {
+    return 'O campo responsavel é obrigatorio!';
+  }
+  if (!dadosAluno.telefone) {
+    return 'O campo telefone é obrigatorio!';
+  }
+  if (!dadosAluno.valorMensal) {
+    return 'O campo valor é obrigatorio!';
+  }
+  if (dadosAluno.valorMensal <= 0) {
+    return 'O valor deve ser maior que 0!';
+  }
+
+  return null;
+}
+
 function listarAlunos() {
   return alunos;
 }
@@ -103,28 +126,6 @@ function removerAluno(id) {
   return alunoRemovido[0];
 }
 
-function validarDadosAluno(dadosAluno) {
-  if (!dadosAluno.nome) {
-    return 'O campo nome é obrigatorio!';
-  }
-  if (!dadosAluno.escola) {
-    return 'O campo escola é obrigatorio!';
-  }
-  if (!dadosAluno.nomeResponsavel) {
-    return 'O campo responsavel é obrigatorio!';
-  }
-  if (!dadosAluno.telefone) {
-    return 'O campo telefone é obrigatorio!';
-  }
-  if (!dadosAluno.valorMensal) {
-    return 'O campo valor é obrigatorio!';
-  }
-  if (!dadosAluno.valorMensal <= 0) {
-    return 'O valor deve ser maior que 0!';
-  }
-
-  return null;
-}
 export const alunosService = {
   listarAlunos,
   criarAluno,
