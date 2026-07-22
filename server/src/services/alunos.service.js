@@ -8,6 +8,14 @@ function listarAlunos() {
 }
 
 function criarAluno(dadosDoAluno) {
+  const erroValidacao = validarDadosAluno(dadosDoAluno);
+
+  if (erroValidacao) {
+    return {
+      erro: true,
+      mensagem: erroValidacao,
+    };
+  }
   const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno; // desestruturação
 
   const aluno = {
@@ -19,24 +27,42 @@ function criarAluno(dadosDoAluno) {
     valorMensal,
     status: 'ativo',
     criadoEm: new Date(),
+    atualizadoEm: new Date(),
   };
 
   alunos.push(aluno); /* adiciona aluno no array de alunos */
 
-  return aluno;
+  return {
+    erro: false,
+    aluno,
+  };
 }
 
 function buscarAlunoPorID(id) {
   const aluno = alunos.find((aluno) => aluno.id === Number(id)); // find() procura um item
 
-  return aluno; // service devolve o aluno para o array em controle
+  return aluno;
 }
 
 function atualizarAluno(id, dadosAtualizados) {
   const aluno = buscarAlunoPorID(id);
 
   if (!aluno) {
-    return null;
+    return {
+      erro: true,
+      tipo: 'não_encontrado',
+      mensagem: 'Aluno não encontrado',
+    };
+  }
+
+  const erroValidacao = validarDadosAluno(dadosAtualizados);
+
+  if (erroValidacao) {
+    return {
+      erro: true,
+      tipo: 'validação',
+      mensagem: erroValidacao,
+    };
   }
 
   aluno.nome = dadosAtualizados.nome;
@@ -46,7 +72,10 @@ function atualizarAluno(id, dadosAtualizados) {
   aluno.valorMensal = dadosAtualizados.valorMensal;
   aluno.atualizadoEm = new Date();
 
-  return aluno;
+  return {
+    erro: false,
+    aluno,
+  };
 }
 
 function inativarAluno(id) {
@@ -74,6 +103,28 @@ function removerAluno(id) {
   return alunoRemovido[0];
 }
 
+function validarDadosAluno(dadosAluno) {
+  if (!dadosAluno.nome) {
+    return 'O campo nome é obrigatorio!';
+  }
+  if (!dadosAluno.escola) {
+    return 'O campo escola é obrigatorio!';
+  }
+  if (!dadosAluno.nomeResponsavel) {
+    return 'O campo responsavel é obrigatorio!';
+  }
+  if (!dadosAluno.telefone) {
+    return 'O campo telefone é obrigatorio!';
+  }
+  if (!dadosAluno.valorMensal) {
+    return 'O campo valor é obrigatorio!';
+  }
+  if (!dadosAluno.valorMensal <= 0) {
+    return 'O valor deve ser maior que 0!';
+  }
+
+  return null;
+}
 export const alunosService = {
   listarAlunos,
   criarAluno,

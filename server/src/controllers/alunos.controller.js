@@ -8,14 +8,18 @@ function listar(req, res) {
 
   return res.status(200).json(alunos);
 }
-/* chamada quando fazemos o GET/alunos */
 
 function criar(req, res) {
-  const aluno = alunosService.criarAluno(req.body);
+  const resultado = alunosService.criarAluno(req.body);
 
-  return res.status(201).json(aluno);
+  if (resultado.erro) {
+    return res.status(400).json({
+      mensagem: resultado.mensagem,
+    });
+  }
+
+  return res.status(201).json(resultado.aluno);
 }
-/* chamada quando fazemos o POST/alunos */
 
 function buscarPorID(req, res) {
   const { id } = req.params;
@@ -35,15 +39,21 @@ function buscarPorID(req, res) {
 function atualizar(req, res) {
   const { id } = req.params;
 
-  const aluno = alunosService.atualizarAluno(id, req.body);
+  const resultado = alunosService.atualizarAluno(id, req.body);
 
-  if (!aluno) {
+  if (resultado.erro && resultado.tipo === 'não_encontrado') {
     return res.status(404).json({
-      mensagem: 'Aluno não encontrado',
+      mensagem: resultado.mensagem,
     });
   }
 
-  return res.status(200).json(aluno);
+  if (resultado.erro && resultado.tipo === 'validacao') {
+    return res.status(400).json({
+      mensagem: resultado.mensagem,
+    });
+  }
+
+  return res.status(200).json(resultado.aluno);
 }
 
 function inativar(req, res) {
