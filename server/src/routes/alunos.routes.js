@@ -10,7 +10,7 @@ const alunosRoutes = Router();
 
 alunosRoutes.get('/', alunosController.listar);
 alunosRoutes.post('/', alunosController.criar);
-alunosRoutes.get('/:id', alunosController.buscarPorID);
+alunosRoutes.get('/:id', alunosController.buscarPorId);
 alunosRoutes.put('/:id', alunosController.atualizar);
 alunosRoutes.patch('/:id/inativar', alunosController.inativar);
 alunosRoutes.delete('/:id', alunosController.remover);

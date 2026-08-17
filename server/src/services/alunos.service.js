@@ -1,7 +1,6 @@
 /* Services > executa a lógica/regra de negocio 
    Qual regra/lógica precisa acontecer?*/
-
-const alunos = [];
+import { prisma } from '../database/prisma.js';
 
 function validarDadosAluno(dadosAluno) {
   if (!dadosAluno.nome) {
@@ -26,11 +25,19 @@ function validarDadosAluno(dadosAluno) {
   return null;
 }
 
-function listarAlunos() {
+async function listarAlunos() {
+  const alunos = await prisma.aluno.findMany({
+    //Prisma, busque registro na tabela aluno == SELECT * FROM ALUNO
+    orderBy: {
+      id: 'asc', //Ordene por ordem crescente se fosse decrescente seria desc
+    },
+  });
+
   return alunos;
 }
 
-function criarAluno(dadosDoAluno) {
+async function criarAluno(dadosDoAluno) {
+  //Validação, nunca salve sem validar
   const erroValidacao = validarDadosAluno(dadosDoAluno);
 
   if (erroValidacao) {
@@ -41,19 +48,15 @@ function criarAluno(dadosDoAluno) {
   }
   const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno; // desestruturação
 
-  const aluno = {
-    id: alunos.length + 1,
-    nome,
-    escola,
-    nomeResponsavel,
-    telefone,
-    valorMensal,
-    status: 'ativo',
-    criadoEm: new Date(),
-    atualizadoEm: new Date(),
-  };
-
-  alunos.push(aluno); /* adiciona aluno no array de alunos */
+  const aluno = await prisma.aluno.create({
+    data: {
+      nome,
+      escola,
+      nomeResponsavel,
+      telefone,
+      valorMensal,
+    },
+  });
 
   return {
     erro: false,
@@ -61,19 +64,23 @@ function criarAluno(dadosDoAluno) {
   };
 }
 
-function buscarAlunoPorID(id) {
-  const aluno = alunos.find((aluno) => aluno.id === Number(id)); // find() procura um item
+async function buscarAlunoPorID(id) {
+  const aluno = await prisma.aluno.findUnique({
+    where: {
+      id: Number(id),
+    },
+  });
 
   return aluno;
 }
 
-function atualizarAluno(id, dadosAtualizados) {
-  const aluno = buscarAlunoPorID(id);
+async function atualizarAluno(id, dadosAtualizados) {
+  const alunoExiste = await buscarAlunoPorID(id);
 
-  if (!aluno) {
+  if (!alunoExiste) {
     return {
       erro: true,
-      tipo: 'não_encontrado',
+      tipo: 'nao_encontrado',
       mensagem: 'Aluno não encontrado',
     };
   }
@@ -83,47 +90,66 @@ function atualizarAluno(id, dadosAtualizados) {
   if (erroValidacao) {
     return {
       erro: true,
-      tipo: 'validação',
+      tipo: 'validacao',
       mensagem: erroValidacao,
     };
   }
 
-  aluno.nome = dadosAtualizados.nome;
-  aluno.escola = dadosAtualizados.escola;
-  aluno.nomeResponsavel = dadosAtualizados.nomeResponsavel;
-  aluno.telefone = dadosAtualizados.telefone;
-  aluno.valorMensal = dadosAtualizados.valorMensal;
-  aluno.atualizadoEm = new Date();
+  const { nome, escola, nomeResponsavel, telefone, valorMensal, status } =
+    dadosAtualizados;
 
+  const aluno = await prisma.aluno.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      nome,
+      escola,
+      nomeResponsavel,
+      telefone,
+      valorMensal,
+      status,
+    },
+  });
   return {
     erro: false,
     aluno,
   };
 }
 
-function inativarAluno(id) {
-  const aluno = buscarAlunoPorID(id);
+async function inativarAluno(id) {
+  const aluno = await buscarAlunoPorID(id);
 
   if (!aluno) {
     return null;
   }
 
-  aluno.status = 'inativo';
-  aluno.atualizadoEm = new Date();
+  const alunoInativado = await prisma.aluno.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      status: 'inativo',
+    },
+  });
 
-  return aluno;
+  return { status: alunoInativado.status };
 }
 
-function removerAluno(id) {
-  const indiceAluno = alunos.findIndex((aluno) => aluno.id === Number(id));
+async function removerAluno(id) {
+  const alunoExiste = await buscarAlunoPorID(id);
 
-  if (indiceAluno === -1) {
+  if (!alunoExiste) {
     return null;
   }
 
-  const alunoRemovido = alunos.splice(indiceAluno, 1);
+  const aluno = await prisma.aluno.delete({
+    where: {
+      id: Number(id),
+    },
+  });
 
-  return alunoRemovido[0];
+  return aluno;
 }
 
 export const alunosService = {
