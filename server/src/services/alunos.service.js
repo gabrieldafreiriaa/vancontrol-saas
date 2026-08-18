@@ -1,25 +1,46 @@
 /* Services > executa a lógica/regra de negocio 
+
    Qual regra/lógica precisa acontecer?*/
+
 import { prisma } from '../database/prisma.js';
 
 function validarDadosAluno(dadosAluno) {
-  if (!dadosAluno.nome) {
+  if (!dadosAluno.nome || dadosAluno.nome.trim() === '') {
     return 'O campo nome é obrigatorio!';
   }
-  if (!dadosAluno.escola) {
+
+  if (!dadosAluno.escola || dadosAluno.escola.trim() === '') {
     return 'O campo escola é obrigatorio!';
   }
-  if (!dadosAluno.nomeResponsavel) {
+
+  if (!dadosAluno.nomeResponsavel || dadosAluno.nomeResponsavel.trim() === '') {
     return 'O campo responsavel é obrigatorio!';
   }
-  if (!dadosAluno.telefone) {
+
+  if (!dadosAluno.telefone || dadosAluno.telefone.trim() === '') {
     return 'O campo telefone é obrigatorio!';
   }
-  if (!dadosAluno.valorMensal) {
+
+  if (dadosAluno.valorMensal === undefined || dadosAluno.valorMensal === null) {
     return 'O campo valor é obrigatorio!';
   }
+
+  if (typeof dadosAluno.valorMensal !== 'number') {
+    return 'O valorMensal deve ser um número!';
+  }
+
   if (dadosAluno.valorMensal <= 0) {
-    return 'O valor deve ser maior que 0!';
+    return 'O valor deve ser maior que zero!';
+  }
+
+  return null;
+}
+
+function validarID(id) {
+  const idNumero = Number(id);
+
+  if (!idNumero || idNumero <= 0) {
+    return 'ID inválido';
   }
 
   return null;
@@ -27,9 +48,10 @@ function validarDadosAluno(dadosAluno) {
 
 async function listarAlunos() {
   const alunos = await prisma.aluno.findMany({
-    //Prisma, busque registro na tabela aluno == SELECT * FROM ALUNO
+    // Prisma, busque registros na tabela Aluno
+    // Equivalente a: SELECT * FROM "Aluno"
     orderBy: {
-      id: 'asc', //Ordene por ordem crescente se fosse decrescente seria desc
+      id: 'asc', // Ordene por ordem crescente. Se fosse decrescente seria 'desc'
     },
   });
 
@@ -37,16 +59,18 @@ async function listarAlunos() {
 }
 
 async function criarAluno(dadosDoAluno) {
-  //Validação, nunca salve sem validar
+  // Validação: nunca salve sem validar
   const erroValidacao = validarDadosAluno(dadosDoAluno);
 
   if (erroValidacao) {
     return {
       erro: true,
+      tipo: 'validacao',
       mensagem: erroValidacao,
     };
   }
-  const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno; // desestruturação
+
+  const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno;
 
   const aluno = await prisma.aluno.create({
     data: {
@@ -65,24 +89,41 @@ async function criarAluno(dadosDoAluno) {
 }
 
 async function buscarAlunoPorID(id) {
+  const erroID = validarID(id);
+
+  if (erroID) {
+    return {
+      erro: true,
+      tipo: 'id_invalido',
+      mensagem: erroID,
+    };
+  }
+
   const aluno = await prisma.aluno.findUnique({
     where: {
       id: Number(id),
     },
   });
 
-  return aluno;
-}
-
-async function atualizarAluno(id, dadosAtualizados) {
-  const alunoExiste = await buscarAlunoPorID(id);
-
-  if (!alunoExiste) {
+  if (!aluno) {
     return {
       erro: true,
       tipo: 'nao_encontrado',
-      mensagem: 'Aluno não encontrado',
+      mensagem: 'Aluno não encontrado!',
     };
+  }
+
+  return {
+    erro: false,
+    aluno,
+  };
+}
+
+async function atualizarAluno(id, dadosAtualizados) {
+  const resultadoBusca = await buscarAlunoPorID(id);
+
+  if (resultadoBusca.erro) {
+    return resultadoBusca;
   }
 
   const erroValidacao = validarDadosAluno(dadosAtualizados);
@@ -111,6 +152,7 @@ async function atualizarAluno(id, dadosAtualizados) {
       status,
     },
   });
+
   return {
     erro: false,
     aluno,
@@ -118,13 +160,13 @@ async function atualizarAluno(id, dadosAtualizados) {
 }
 
 async function inativarAluno(id) {
-  const aluno = await buscarAlunoPorID(id);
+  const resultadoBusca = await buscarAlunoPorID(id);
 
-  if (!aluno) {
-    return null;
+  if (resultadoBusca.erro) {
+    return resultadoBusca;
   }
 
-  const alunoInativado = await prisma.aluno.update({
+  const aluno = await prisma.aluno.update({
     where: {
       id: Number(id),
     },
@@ -133,14 +175,17 @@ async function inativarAluno(id) {
     },
   });
 
-  return { status: alunoInativado.status };
+  return {
+    erro: false,
+    aluno,
+  };
 }
 
 async function removerAluno(id) {
-  const alunoExiste = await buscarAlunoPorID(id);
+  const resultadoBusca = await buscarAlunoPorID(id);
 
-  if (!alunoExiste) {
-    return null;
+  if (resultadoBusca.erro) {
+    return resultadoBusca;
   }
 
   const aluno = await prisma.aluno.delete({
@@ -149,7 +194,10 @@ async function removerAluno(id) {
     },
   });
 
-  return aluno;
+  return {
+    erro: false,
+    aluno,
+  };
 }
 
 export const alunosService = {
