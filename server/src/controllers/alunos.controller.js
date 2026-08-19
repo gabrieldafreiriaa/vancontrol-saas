@@ -76,7 +76,7 @@ async function inativar(req, res) {
     return responderErro(res, resultado);
   }
 
-  return res.status(200).json(aluno);
+  return res.status(200).json(resultado.aluno);
 }
 
 async function remover(req, res) {
@@ -88,7 +88,9 @@ async function remover(req, res) {
     return responderErro(res, resultado);
   }
 
-  return res.status(200).json(aluno);
+  return res.status(200).json({
+    mensagem: `Aluno(a) ${resultado.aluno.nome} foi excluído com sucesso`,
+  });
 }
 
 export const alunosController = {
