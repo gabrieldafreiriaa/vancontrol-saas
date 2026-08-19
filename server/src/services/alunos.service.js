@@ -88,7 +88,7 @@ async function criarAluno(dadosDoAluno) {
   };
 }
 
-async function buscarAlunoPorID(id) {
+async function buscarAlunoPorId(id) {
   const erroID = validarID(id);
 
   if (erroID) {
@@ -120,7 +120,7 @@ async function buscarAlunoPorID(id) {
 }
 
 async function atualizarAluno(id, dadosAtualizados) {
-  const resultadoBusca = await buscarAlunoPorID(id);
+  const resultadoBusca = await buscarAlunoPorId(id);
 
   if (resultadoBusca.erro) {
     return resultadoBusca;
@@ -136,7 +136,7 @@ async function atualizarAluno(id, dadosAtualizados) {
     };
   }
 
-  const { nome, escola, nomeResponsavel, telefone, valorMensal, status } =
+  const { nome, escola, nomeResponsavel, telefone, valorMensal } =
     dadosAtualizados;
 
   const aluno = await prisma.aluno.update({
@@ -149,7 +149,6 @@ async function atualizarAluno(id, dadosAtualizados) {
       nomeResponsavel,
       telefone,
       valorMensal,
-      status,
     },
   });
 
@@ -160,7 +159,7 @@ async function atualizarAluno(id, dadosAtualizados) {
 }
 
 async function inativarAluno(id) {
-  const resultadoBusca = await buscarAlunoPorID(id);
+  const resultadoBusca = await buscarAlunoPorId(id);
 
   if (resultadoBusca.erro) {
     return resultadoBusca;
@@ -182,7 +181,7 @@ async function inativarAluno(id) {
 }
 
 async function removerAluno(id) {
-  const resultadoBusca = await buscarAlunoPorID(id);
+  const resultadoBusca = await buscarAlunoPorId(id);
 
   if (resultadoBusca.erro) {
     return resultadoBusca;
@@ -203,7 +202,7 @@ async function removerAluno(id) {
 export const alunosService = {
   listarAlunos,
   criarAluno,
-  buscarAlunoPorID,
+  buscarAlunoPorId,
   atualizarAluno,
   inativarAluno,
   removerAluno,

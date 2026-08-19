@@ -3,6 +3,30 @@
 
 import { alunosService } from '../services/alunos.service.js';
 
+function responderErro(res, resultado) {
+  if (resultado.tipo === 'id_invalido') {
+    return res.status(400).json({
+      mensagem: resultado.mensagem,
+    });
+  }
+
+  if (resultado.tipo === 'validacao') {
+    return res.status(400).json({
+      mensagem: resultado.mensagem,
+    });
+  }
+
+  if (resultado.tipo === 'nao_encontrado') {
+    return res.status(404).json({
+      mensagem: resultado.mensagem,
+    });
+  }
+
+  return res.status(500).json({
+    mensagem: 'Erro interno do servidor',
+  });
+}
+
 async function listar(req, res) {
   const alunos = await alunosService.listarAlunos();
 
@@ -13,9 +37,7 @@ async function criar(req, res) {
   const resultado = await alunosService.criarAluno(req.body);
 
   if (resultado.erro) {
-    return res.status(400).json({
-      mensagem: resultado.mensagem,
-    });
+    return responderErro(res, resultado);
   }
 
   return res.status(201).json(resultado.aluno);
@@ -24,15 +46,13 @@ async function criar(req, res) {
 async function buscarPorId(req, res) {
   const { id } = req.params;
 
-  const aluno = await alunosService.buscarAlunoPorId(id);
+  const resultado = await alunosService.buscarAlunoPorId(id);
 
-  if (!aluno) {
-    return res.status(404).json({
-      mensagem: 'Aluno não encontrado',
-    });
+  if (resultado.erro) {
+    return responderErro(res, resultado);
   }
 
-  return res.status(200).json(aluno);
+  return res.status(200).json(resultado.aluno);
 }
 
 async function atualizar(req, res) {
@@ -40,16 +60,8 @@ async function atualizar(req, res) {
 
   const resultado = await alunosService.atualizarAluno(id, req.body);
 
-  if (resultado.erro && resultado.tipo === 'nao_encontrado') {
-    return res.status(404).json({
-      mensagem: resultado.mensagem,
-    });
-  }
-
-  if (resultado.erro && resultado.tipo === 'validacao') {
-    return res.status(400).json({
-      mensagem: resultado.mensagem,
-    });
+  if (resultado.erro) {
+    return responderErro(res, resultado);
   }
 
   return res.status(200).json(resultado.aluno);
@@ -58,12 +70,10 @@ async function atualizar(req, res) {
 async function inativar(req, res) {
   const { id } = req.params;
 
-  const aluno = await alunosService.inativarAluno(id);
+  const resultado = await alunosService.inativarAluno(id);
 
-  if (!aluno) {
-    return res.status(404).json({
-      mensagem: 'Aluno não encontrado',
-    });
+  if (resultado.erro) {
+    return responderErro(res, resultado);
   }
 
   return res.status(200).json(aluno);
@@ -72,18 +82,13 @@ async function inativar(req, res) {
 async function remover(req, res) {
   const { id } = req.params;
 
-  const aluno = await alunosService.removerAluno(id);
+  const resultado = await alunosService.removerAluno(id);
 
-  if (!aluno) {
-    return res.status(404).json({
-      mensagem: 'Aluno não encontrado',
-    });
+  if (resultado.erro) {
+    return responderErro(res, resultado);
   }
 
-  return res.status(200).json({
-    mensagem: 'Aluno excluído com sucesso',
-    aluno,
-  });
+  return res.status(200).json(aluno);
 }
 
 export const alunosController = {
