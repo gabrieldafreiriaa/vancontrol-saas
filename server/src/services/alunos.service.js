@@ -3,6 +3,7 @@
    Qual regra/lógica precisa acontecer?*/
 
 import { prisma } from '../database/prisma.js';
+import { validarId } from '../helpers/validarId.js';
 
 function validarDadosAluno(dadosAluno) {
   if (!dadosAluno.nome || dadosAluno.nome.trim() === '') {
@@ -36,16 +37,6 @@ function validarDadosAluno(dadosAluno) {
   return null;
 }
 
-function validarID(id) {
-  const idNumero = Number(id);
-
-  if (!idNumero || idNumero <= 0) {
-    return 'ID inválido';
-  }
-
-  return null;
-}
-
 async function listarAlunos() {
   const alunos = await prisma.aluno.findMany({
     // Prisma, busque registros na tabela Aluno
@@ -54,8 +45,10 @@ async function listarAlunos() {
       id: 'asc', // Ordene por ordem crescente. Se fosse decrescente seria 'desc'
     },
   });
-
-  return alunos;
+  return {
+    erro: false,
+    alunos,
+  };
 }
 
 async function criarAluno(dadosDoAluno) {
@@ -89,13 +82,13 @@ async function criarAluno(dadosDoAluno) {
 }
 
 async function buscarAlunoPorId(id) {
-  const erroID = validarID(id);
+  const erroId = validarId(id);
 
-  if (erroID) {
+  if (erroId) {
     return {
       erro: true,
       tipo: 'id_invalido',
-      mensagem: erroID,
+      mensagem: erroId,
     };
   }
 

@@ -2,35 +2,16 @@
    O que eu recebi e o que vou responder?*/
 
 import { alunosService } from '../services/alunos.service.js';
-
-function responderErro(res, resultado) {
-  if (resultado.tipo === 'id_invalido') {
-    return res.status(400).json({
-      mensagem: resultado.mensagem,
-    });
-  }
-
-  if (resultado.tipo === 'validacao') {
-    return res.status(400).json({
-      mensagem: resultado.mensagem,
-    });
-  }
-
-  if (resultado.tipo === 'nao_encontrado') {
-    return res.status(404).json({
-      mensagem: resultado.mensagem,
-    });
-  }
-
-  return res.status(500).json({
-    mensagem: 'Erro interno do servidor',
-  });
-}
+import { responderErro } from '../helpers/responderErro.js';
 
 async function listar(req, res) {
-  const alunos = await alunosService.listarAlunos();
+  const resultado = await alunosService.listarAlunos();
 
-  return res.status(200).json(alunos);
+  if (resultado.erro) {
+    return responderErro(res, resultado);
+  }
+
+  return res.status(200).json(resultado.alunos);
 }
 
 async function criar(req, res) {
