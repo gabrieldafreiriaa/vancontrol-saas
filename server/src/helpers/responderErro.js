@@ -17,6 +17,12 @@ export function responderErro(res, resultado) {
     });
   }
 
+  if (resultado.tipo === 'erro_interno') {
+    return res.status(500).json({
+      mensagem: resultado.mensagem,
+    });
+  }
+
   return res.status(500).json({
     mensagem: 'Erro interno do servidor',
   });

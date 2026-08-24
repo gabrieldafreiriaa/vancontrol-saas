@@ -57,7 +57,7 @@ async function inativar(req, res) {
     return responderErro(res, resultado);
   }
 
-  return res.status(200).json(resultado.aluno);
+  return res.status(200).json(`status : ${resultado.aluno.status}`);
 }
 
 async function remover(req, res) {

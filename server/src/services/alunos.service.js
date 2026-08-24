@@ -38,17 +38,23 @@ function validarDadosAluno(dadosAluno) {
 }
 
 async function listarAlunos() {
-  const alunos = await prisma.aluno.findMany({
-    // Prisma, busque registros na tabela Aluno
-    // Equivalente a: SELECT * FROM "Aluno"
-    orderBy: {
-      id: 'asc', // Ordene por ordem crescente. Se fosse decrescente seria 'desc'
-    },
-  });
-  return {
-    erro: false,
-    alunos,
-  };
+  try {
+    const alunos = await prisma.aluno.findMany({
+      orderBy: {
+        id: 'asc', // Ordene por ordem crescente. Se fosse decrescente seria 'desc'
+      },
+    });
+    return {
+      erro: false,
+      alunos,
+    };
+  } catch (error) {
+    return {
+      erro: true,
+      tipo: 'erro_interno',
+      mensagem: 'Erro ao listar alunos',
+    };
+  }
 }
 
 async function criarAluno(dadosDoAluno) {
@@ -63,22 +69,31 @@ async function criarAluno(dadosDoAluno) {
     };
   }
 
-  const { nome, escola, nomeResponsavel, telefone, valorMensal } = dadosDoAluno;
+  try {
+    const { nome, escola, nomeResponsavel, telefone, valorMensal } =
+      dadosDoAluno;
 
-  const aluno = await prisma.aluno.create({
-    data: {
-      nome,
-      escola,
-      nomeResponsavel,
-      telefone,
-      valorMensal,
-    },
-  });
+    const aluno = await prisma.aluno.create({
+      data: {
+        nome,
+        escola,
+        nomeResponsavel,
+        telefone,
+        valorMensal,
+      },
+    });
 
-  return {
-    erro: false,
-    aluno,
-  };
+    return {
+      erro: false,
+      aluno,
+    };
+  } catch (error) {
+    return {
+      erro: true,
+      tipo: 'erro_interno',
+      mensagem: 'Erro ao criar aluno',
+    };
+  }
 }
 
 async function buscarAlunoPorId(id) {
@@ -92,24 +107,32 @@ async function buscarAlunoPorId(id) {
     };
   }
 
-  const aluno = await prisma.aluno.findUnique({
-    where: {
-      id: Number(id),
-    },
-  });
+  try {
+    const aluno = await prisma.aluno.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
 
-  if (!aluno) {
+    if (!aluno) {
+      return {
+        erro: true,
+        tipo: 'nao_encontrado',
+        mensagem: 'Aluno não encontrado!',
+      };
+    }
+
     return {
-      erro: true,
-      tipo: 'nao_encontrado',
-      mensagem: 'Aluno não encontrado!',
+      erro: false,
+      aluno,
+    };
+  } catch (error) {
+    return {
+      erro: ture,
+      tipo: 'erro_interno',
+      mensagem: 'Erro ao buscar aluno',
     };
   }
-
-  return {
-    erro: false,
-    aluno,
-  };
 }
 
 async function atualizarAluno(id, dadosAtualizados) {
