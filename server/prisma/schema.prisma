@@ -12,14 +12,217 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+}
+
+enum TipoUsuario {
+  ADMIN
+  MOTORISTA
+}
+
+enum StatusResponsavel {
+  ATIVO
+  INATIVO
+}
+
+enum StatusAluno {
+  ATIVO
+  INATIVO
+}
+
+enum TurnoAluno {
+  MANHA
+  TARDE
+  INTEGRAL
+}
+
+enum StatusContrato {
+  ATIVO
+  ENCERRADO
+  CANCELADO
+}
+
+enum StatusMensalidade {
+  PENDENTE
+  PAGO
+  PARCIAL
+  ATRASADO
+  CANCELADO
+}
+
+enum FormaPagamento {
+  DINHEIRO
+  CARTAO
+  PIX
+}
+
+enum CategoriaDespesa {
+  COMBUSTIVEL
+  MANUTENCAO
+  OUTROS
+}
+
+model Organizacao {
+  id           Int      @id @default(autoincrement())
+  nome         String
+  telefone     String?
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  usuarios     Usuario[]
+  responsaveis Responsavel[]
+  alunos       Aluno[]
+  contratos    Contrato[]
+  mensalidades Mensalidade[]
+  pagamentos   Pagamento[]
+  despesas     Despesa[]
+}
+
+model Usuario {
+  id           Int           @id @default(autoincrement())
+  nome         String
+  email        String        @unique
+  senhaHash    String
+  tipo         TipoUsuario   @default(ADMIN)
+  status       StatusUsuario @default(ATIVO)
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  @@index([organizacaoId])
+}
+
+model Responsavel {
+  id                 Int               @id @default(autoincrement())
+  nome               String
+  telefone           String
+  telefoneSecundario String?
+  endereco           String
+  observacoes        String?
+  status             StatusResponsavel @default(ATIVO)
+  criadoEm           DateTime          @default(now())
+  atualizadoEm       DateTime          @updatedAt
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  alunos Aluno[]
+
+  @@index([organizacaoId])
+}
+
 model Aluno {
-  id              Int      @id @default(autoincrement())
-  nome            String
-  escola          String
-  nomeResponsavel String
-  telefone        String
-  valorMensal     Float
-  status          String   @default("ativo")
-  criadoEm        DateTime @default(now())
-  atualizadoEm    DateTime @updatedAt
+  id           Int         @id @default(autoincrement())
+  nome         String
+  escola       String
+  turno        TurnoAluno
+  status       StatusAluno @default(ATIVO)
+  observacoes  String?
+  dataEntrada  DateTime    @default(now())
+  criadoEm     DateTime    @default(now())
+  atualizadoEm DateTime    @updatedAt
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  responsavelId Int
+  responsavel   Responsavel @relation(fields: [responsavelId], references: [id], onDelete: Restrict)
+
+  contratos    Contrato[]
+  mensalidades Mensalidade[]
+
+  @@index([organizacaoId])
+  @@index([responsavelId])
+  @@index([status])
+}
+
+model Contrato {
+  id            Int            @id @default(autoincrement())
+  valorMensal   Decimal        @db.Decimal(10, 2)
+  diaVencimento Int
+  dataInicio    DateTime
+  dataFim       DateTime?
+  status        StatusContrato @default(ATIVO)
+  criadoEm      DateTime       @default(now())
+  atualizadoEm  DateTime       @updatedAt
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  alunoId Int
+  aluno   Aluno @relation(fields: [alunoId], references: [id], onDelete: Restrict)
+
+  mensalidades Mensalidade[]
+
+  @@index([organizacaoId])
+  @@index([alunoId])
+  @@index([status])
+}
+
+model Mensalidade {
+  id             Int               @id @default(autoincrement())
+  mesReferencia  String
+  valorCobrado   Decimal           @db.Decimal(10, 2)
+  valorPago      Decimal           @default(0) @db.Decimal(10, 2)
+  dataVencimento DateTime
+  status         StatusMensalidade @default(PENDENTE)
+  statusManual   Boolean           @default(false)
+  criadoEm       DateTime          @default(now())
+  atualizadoEm   DateTime          @updatedAt
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  alunoId Int
+  aluno   Aluno @relation(fields: [alunoId], references: [id], onDelete: Restrict)
+
+  contratoId Int
+  contrato   Contrato @relation(fields: [contratoId], references: [id], onDelete: Restrict)
+
+  pagamentos Pagamento[]
+
+  @@unique([alunoId, mesReferencia])
+  @@index([organizacaoId])
+  @@index([mesReferencia])
+  @@index([status])
+}
+
+model Pagamento {
+  id             Int            @id @default(autoincrement())
+  valor          Decimal        @db.Decimal(10, 2)
+  formaPagamento FormaPagamento
+  dataPagamento  DateTime       @default(now())
+  criadoEm       DateTime       @default(now())
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  mensalidadeId Int
+  mensalidade   Mensalidade @relation(fields: [mensalidadeId], references: [id], onDelete: Restrict)
+
+  @@index([organizacaoId])
+  @@index([mensalidadeId])
+  @@index([dataPagamento])
+}
+
+model Despesa {
+  id           Int              @id @default(autoincrement())
+  descricao    String
+  categoria    CategoriaDespesa
+  valor        Decimal          @db.Decimal(10, 2)
+  dataDespesa  DateTime
+  observacoes  String?
+  criadoEm     DateTime         @default(now())
+  atualizadoEm DateTime         @updatedAt
+
+  organizacaoId Int
+  organizacao   Organizacao @relation(fields: [organizacaoId], references: [id], onDelete: Restrict)
+
+  @@index([organizacaoId])
+  @@index([categoria])
+  @@index([dataDespesa])
 }
