@@ -4,11 +4,9 @@
 ===================================
 */
 
-import 'dotenv/config';
 import app from './main.js';
+import { env } from './config/env.js';
 
-const PORT = process.env.PORT; //define que o backend vai utilizar a porta que esta no arquivo .env
-
-app.listen(PORT, () => {
-  console.log(`van control API rodando na porta ${PORT}`);
+app.listen(env.PORT, () => {
+  console.log(`VanControl API running on port ${env.PORT}`);
 });

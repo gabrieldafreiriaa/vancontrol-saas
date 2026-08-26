@@ -7,21 +7,22 @@
 import express from 'express';
 import cors from 'cors';
 
-import alunosRoutes from './routes/alunos.routes.js';
+import routes from './modules/index.routes.js';
+import { errorMiddleware } from './middlewares/errorMiddleware.js';
 
 const app = express();
 
-app.use(cors()); // permite que mais de uma porta utilize a API
-app.use(express.json()); // implementação de json no  body
+app.use(cors());
+app.use(express.json());
 
-app.get('/health', (req, res) => {
-  return res.json({
-    status: 'ok',
-    message: 'VanControl API running',
+app.use(routes);
+
+app.use((req, res) => {
+  return res.status(404).json({
+    mensagem: 'Rota não encontrada',
   });
 });
-// controla a rota de teste da API
 
-app.use('/alunos', alunosRoutes); // Tudo que começar com /alunos vai para alunosRoutes
+app.use(errorMiddleware);
 
 export default app;
