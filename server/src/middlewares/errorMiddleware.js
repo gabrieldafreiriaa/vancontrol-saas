@@ -1,4 +1,4 @@
-import { AppError } from '../errors/AppError.js';
+import { AppError } from '../errors/appError.js';
 
 export function errorMiddleware(error, req, res, next) {
   if (error instanceof AppError) {
