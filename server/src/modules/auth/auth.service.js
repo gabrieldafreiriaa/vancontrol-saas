@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { prisma } from '../../database/prisma.js';
 import { env } from '../../config/env.js';
-import { AppError } from '../../errors/appError.js';
+import { AppError } from '../../errors/app.error.js';
 import { email } from 'zod';
 
 function gerarToken(usuario) {
@@ -59,6 +59,7 @@ async function registrar(dados) {
         tipo: 'ADMIN',
         organizacaoId: organizacao.id,
       },
+      //busca dados na tabela usuario e traga a organização ligada a ele
       include: {
         organizacao: true,
       },

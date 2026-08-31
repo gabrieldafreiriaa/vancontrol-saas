@@ -8,7 +8,7 @@ import express from 'express';
 import cors from 'cors';
 
 import routes from './modules/index.routes.js';
-import { errorMiddleware } from './middlewares/errorMiddleware.js';
+import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express();
 

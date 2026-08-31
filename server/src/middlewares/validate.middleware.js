@@ -6,7 +6,7 @@ export function validateMiddleware(schema) {
       query: req.query,
     });
 
-    if (!resultado.sucess) {
+    if (!resultado.success) {
       return res.status(400).json({
         mensagem: 'Erro de validação',
         erros: resultado.error.flatten(),
@@ -14,6 +14,7 @@ export function validateMiddleware(schema) {
     }
 
     req.validated = resultado.data;
+
     return next();
   };
 }
