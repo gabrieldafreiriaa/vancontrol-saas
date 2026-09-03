@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../../database/prisma.js';
 import { env } from '../../config/env.js';
 import { AppError } from '../../errors/app.error.js';
-import { email } from 'zod';
 
 function gerarToken(usuario) {
   return jwt.sign(
@@ -82,9 +81,10 @@ async function login(dados) {
       email: dados.email,
     },
     include: {
-      organizacao,
+      organizacao: true,
     },
   });
+
   if (!usuario) {
     throw new AppError('E-mail ou senha inválido', 401);
   }
@@ -92,6 +92,8 @@ async function login(dados) {
   if (usuario.status !== 'ATIVO') {
     throw new AppError('Usuário inativo', 403);
   }
+
+  const senhaCorreta = await bcrypt.compare(dados.senha, usuario.senhaHash);
 
   if (!senhaCorreta) {
     throw new AppError('E-mail ou senha inválido', 401);
@@ -116,7 +118,7 @@ async function buscarPerfil(usuarioId) {
   });
 
   if (!usuario) {
-    throw new AppError('Usuário não encontrado', 401);
+    throw new AppError('Usuário não encontrado', 404);
   }
   return formatarUsuario(usuario);
 }
