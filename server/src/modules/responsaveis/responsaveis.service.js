@@ -39,7 +39,7 @@ async function criar(dados, organizacaoId) {
   return responsavel;
 }
 
-async function buscarPorId(id, organizacao) {
+async function buscarPorId(id, organizacaoId) {
   const responsavel = await prisma.responsavel.findFirst({
     where: {
       id,
@@ -67,7 +67,7 @@ async function buscarPorId(id, organizacao) {
 async function atualizar(id, dados, organizacaoId) {
   await buscarPorId(id, organizacaoId);
 
-  const responsavel = await prisma.upadte({
+  const responsavel = await prisma.responsavel.update({
     where: {
       id,
     },
